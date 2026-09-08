@@ -1,0 +1,171 @@
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: 'Segoe UI', 'Noto Sans Tamil', Arial, sans-serif; color: var(--text-primary); margin: 0; }
+  
+  .container { padding: 1.5rem; }
+  
+  h1 { font-size: 22px; font-weight: 500; margin: 0 0 1rem 0; }
+  
+  .ingredients-label { font-size: 13px; font-weight: 500; color: var(--text-secondary); text-transform: none; letter-spacing: 0px; margin-bottom: 1rem; }
+  
+  .ingredients-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 8px; margin-bottom: 1.5rem; }
+  
+  .ingredient-btn { 
+    padding: 10px 12px; 
+    border: 0.5px solid var(--border); 
+    border-radius: var(--radius); 
+    background: transparent; 
+    color: var(--text-primary); 
+    cursor: pointer; 
+    font-size: 13px; 
+    transition: all 0.15s ease;
+    font-family: 'Segoe UI', 'Noto Sans Tamil', Arial, sans-serif;
+  }
+  
+  .ingredient-btn:hover { 
+    background: var(--surface-1); 
+    border-color: var(--border-strong); 
+  }
+  
+  .ingredient-btn.selected { 
+    background: var(--fill-accent); 
+    color: var(--on-accent); 
+    border-color: var(--fill-accent); 
+  }
+  
+  .selected-info { 
+    font-size: 13px; 
+    color: var(--text-secondary); 
+    margin: 0.5rem 0 1rem 0; 
+  }
+  
+  .actions { display: flex; gap: 10px; margin-bottom: 1.5rem; }
+  
+  button { 
+    padding: 9px 14px; 
+    border-radius: var(--radius); 
+    font-size: 13px; 
+    font-weight: 500; 
+    cursor: pointer; 
+    border: 0.5px solid var(--border-strong);
+    background: transparent;
+    color: var(--text-primary);
+    font-family: 'Segoe UI', 'Noto Sans Tamil', Arial, sans-serif;
+  }
+  
+  button:hover:not(:disabled) { background: var(--surface-1); }
+  
+  .generate-btn { 
+    background: var(--fill-accent); 
+    color: var(--on-accent); 
+    border-color: var(--fill-accent); 
+  }
+  
+  .generate-btn:disabled { 
+    opacity: 0.5; 
+    cursor: not-allowed; 
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h1>🍛 தமிழ் ரெசிபி ஜெனரேட்டர்</h1>
+  
+  <div class="ingredients-label">உங்களிடம் உள்ள பொருட்களைத் தேர்ந்தெடுக்கவும்</div>
+  <div class="ingredients-grid" id="ingredientsGrid"></div>
+  
+  <div class="selected-info">
+    <span id="selectedCount">0</span> தேர்ந்தெடுக்கப்பட்டவை
+  </div>
+  
+  <div class="actions">
+    <button class="generate-btn" id="generateBtn">சிறந்த ரெசிபிகளை உருவாக்கவும்</button>
+    <button id="clearBtn">அழிக்கவும்</button>
+  </div>
+</div>
+
+<script>
+  const ingredients = [
+    'கோழி', 'ஆட்டு இறைச்சி', 'மீன்', 'பனீர்', 'கடலைப்பருப்பு', 'பருப்பு', 'காளான்',
+    'தக்காளி', 'வெங்காயம்', 'பூண்டு', 'இஞ்சி', 'கேரட்', 'உருளைக்கிழங்கு', 'பசளைக் கீரை',
+    'தேங்காய் பாலாபுளி', 'தயிர்', 'மஞ்சள்', 'சீரகம்', 'கொத்தமல்லி', 'மிளகாய்', 'கொத்தமல்லி இலை',
+    'நெய்', 'எண்ணெய்', 'அரிசி', 'நான்', 'பருப்பு', 'உப்பு', 'சர்க்கரை', 'பச்சை மிளகாய்'
+  ];
+  
+  let selected = new Set();
+  
+  function initIngredients() {
+    const grid = document.getElementById('ingredientsGrid');
+    ingredients.forEach(ing => {
+      const btn = document.createElement('button');
+      btn.className = 'ingredient-btn';
+      btn.textContent = ing;
+      btn.type = 'button';
+      btn.onclick = () => toggleIngredient(btn, ing);
+      grid.appendChild(btn);
+    });
+  }
+  
+  function toggleIngredient(btn, ing) {
+    if (selected.has(ing)) {
+      selected.delete(ing);
+      btn.classList.remove('selected');
+    } else {
+      selected.add(ing);
+      btn.classList.add('selected');
+    }
+    updateCount();
+  }
+  
+  function updateCount() {
+    document.getElementById('selectedCount').textContent = selected.size;
+    document.getElementById('generateBtn').disabled = selected.size === 0;
+  }
+  
+  document.getElementById('generateBtn').onclick = () => {
+    if (selected.size === 0) return;
+    
+    const selectedArr = Array.from(selected).join(', ');
+    const msg = `இந்த பொருட்களைப் பயன்படுத்தி 3 சிறந்த தமிழ் ரெசிபிகளை உருவாக்கவும்: ${selectedArr}
+
+பின்வரும் வடிவத்தில் பதிலளிக்கவும்:
+
+ரெசிபி 1: [பெயர்]
+நேரம்: X நிமிடங்கள்
+பொருட்கள்: [குறிப்பிய பட்டியல்]
+படிகள்: [எண்ணிடப்பட்ட படிகள்]
+பரிமாறுவது: [எப்படி பரிமாற வேண்டும்]
+
+ரெசிபி 2: [பெயர்]
+நேரம்: X நிமிடங்கள்
+பொருட்கள்: [குறிப்பிய பட்டியல்]
+படிகள்: [எண்ணிடப்பட்ட படிகள்]
+பரிமாறுவது: [எப்படி பரிமாற வேண்டும்]
+
+ரெசிபி 3: [பெயர்]
+நேரம்: X நிமிடங்கள்
+பொருட்கள்: [குறிப்பிய பட்டியல்]
+படிகள்: [எண்ணிடப்பட்ட படிகள்]
+பரிமாறுவது: [எப்படி பரிமாற வேண்டும்]`;
+    
+    sendPrompt(msg);
+  };
+  
+  document.getElementById('clearBtn').onclick = () => {
+    selected.clear();
+    document.querySelectorAll('.ingredient-btn').forEach(btn => {
+      btn.classList.remove('selected');
+    });
+    updateCount();
+  };
+  
+  initIngredients();
+  updateCount();
+</script>
+
+</body>
+</html>
