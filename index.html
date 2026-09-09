@@ -1,171 +1,234 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<style>
-  * { box-sizing: border-box; }
-  body { font-family: 'Segoe UI', 'Noto Sans Tamil', Arial, sans-serif; color: var(--text-primary); margin: 0; }
-  
-  .container { padding: 1.5rem; }
-  
-  h1 { font-size: 22px; font-weight: 500; margin: 0 0 1rem 0; }
-  
-  .ingredients-label { font-size: 13px; font-weight: 500; color: var(--text-secondary); text-transform: none; letter-spacing: 0px; margin-bottom: 1rem; }
-  
-  .ingredients-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 8px; margin-bottom: 1.5rem; }
-  
-  .ingredient-btn { 
-    padding: 10px 12px; 
-    border: 0.5px solid var(--border); 
-    border-radius: var(--radius); 
-    background: transparent; 
-    color: var(--text-primary); 
-    cursor: pointer; 
-    font-size: 13px; 
-    transition: all 0.15s ease;
-    font-family: 'Segoe UI', 'Noto Sans Tamil', Arial, sans-serif;
-  }
-  
-  .ingredient-btn:hover { 
-    background: var(--surface-1); 
-    border-color: var(--border-strong); 
-  }
-  
-  .ingredient-btn.selected { 
-    background: var(--fill-accent); 
-    color: var(--on-accent); 
-    border-color: var(--fill-accent); 
-  }
-  
-  .selected-info { 
-    font-size: 13px; 
-    color: var(--text-secondary); 
-    margin: 0.5rem 0 1rem 0; 
-  }
-  
-  .actions { display: flex; gap: 10px; margin-bottom: 1.5rem; }
-  
-  button { 
-    padding: 9px 14px; 
-    border-radius: var(--radius); 
-    font-size: 13px; 
-    font-weight: 500; 
-    cursor: pointer; 
-    border: 0.5px solid var(--border-strong);
-    background: transparent;
-    color: var(--text-primary);
-    font-family: 'Segoe UI', 'Noto Sans Tamil', Arial, sans-serif;
-  }
-  
-  button:hover:not(:disabled) { background: var(--surface-1); }
-  
-  .generate-btn { 
-    background: var(--fill-accent); 
-    color: var(--on-accent); 
-    border-color: var(--fill-accent); 
-  }
-  
-  .generate-btn:disabled { 
-    opacity: 0.5; 
-    cursor: not-allowed; 
-  }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roshan Recipe Generator</title>
+    <style>
+        :root {
+            --primary: #ff6b6b;
+            --background: #fdfaf6;
+            --text: #2d3436;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        .app-container {
+            background: white;
+            max-width: 600px;
+            width: 100%;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+            padding: 30px;
+        }
+        h1 {
+            text-align: center;
+            color: var(--primary);
+            margin-top: 0;
+        }
+        .ingredients-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        .ingredient-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #eee;
+            transition: 0.2s;
+        }
+        .ingredient-item:hover {
+            background: #ffe3e3;
+            border-color: var(--primary);
+        }
+        input[type="checkbox"] {
+            accent-color: var(--primary);
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        button {
+            width: 100%;
+            padding: 15px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background-color: #fa5252;
+        }
+        #result {
+            display: none;
+            margin-top: 30px;
+            border-top: 2px dashed #eee;
+            padding-top: 25px;
+            text-align: center;
+        }
+        #recipe-title {
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+        #recipe-image {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        #recipe-instructions {
+            margin-top: 20px;
+            line-height: 1.6;
+            text-align: left;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+        }
+    </style>
 </head>
 <body>
 
-<div class="container">
-  <h1>🍛 Roshan ரெசிபி ஜெனரேட்டர்</h1>
-  
-  <div class="ingredients-label">உங்களிடம் உள்ள பொருட்களைத் தேர்ந்தெடுக்கவும்</div>
-  <div class="ingredients-grid" id="ingredientsGrid"></div>
-  
-  <div class="selected-info">
-    <span id="selectedCount">0</span> தேர்ந்தெடுக்கப்பட்டவை
-  </div>
-  
-  <div class="actions">
-    <button class="generate-btn" id="generateBtn">சிறந்த ரெசிபிகளை உருவாக்கவும்</button>
-    <button id="clearBtn">அழிக்கவும்</button>
-  </div>
-</div>
+    <div class="app-container">
+        <h1>👨‍🍳 Roshan Recipe Generator</h1>
+        <p style="text-align: center; color: #666;">Select the ingredients you have in your kitchen:</p>
+        
+        <div class="ingredients-grid" id="ingredients-container">
+            <!-- Checkboxes will be injected here by JavaScript -->
+        </div>
 
-<script>
-  const ingredients = [
-    'கோழி', 'ஆட்டு இறைச்சி', 'மீன்', 'பனீர்', 'கடலைப்பருப்பு', 'பருப்பு', 'காளான்',
-    'தக்காளி', 'வெங்காயம்', 'பூண்டு', 'இஞ்சி', 'கேரட்', 'உருளைக்கிழங்கு', 'பசளைக் கீரை',
-    'தேங்காய் பாலாபுளி', 'தயிர்', 'மஞ்சள்', 'சீரகம்', 'கொத்தமல்லி', 'மிளகாய்', 'கொத்தமல்லி இலை',
-    'நெய்', 'எண்ணெய்', 'அரிசி', 'நான்', 'பருப்பு', 'உப்பு', 'சர்க்கரை', 'பச்சை மிளகாய்'
-  ];
-  
-  let selected = new Set();
-  
-  function initIngredients() {
-    const grid = document.getElementById('ingredientsGrid');
-    ingredients.forEach(ing => {
-      const btn = document.createElement('button');
-      btn.className = 'ingredient-btn';
-      btn.textContent = ing;
-      btn.type = 'button';
-      btn.onclick = () => toggleIngredient(btn, ing);
-      grid.appendChild(btn);
-    });
-  }
-  
-  function toggleIngredient(btn, ing) {
-    if (selected.has(ing)) {
-      selected.delete(ing);
-      btn.classList.remove('selected');
-    } else {
-      selected.add(ing);
-      btn.classList.add('selected');
-    }
-    updateCount();
-  }
-  
-  function updateCount() {
-    document.getElementById('selectedCount').textContent = selected.size;
-    document.getElementById('generateBtn').disabled = selected.size === 0;
-  }
-  
-  document.getElementById('generateBtn').onclick = () => {
-    if (selected.size === 0) return;
-    
-    const selectedArr = Array.from(selected).join(', ');
-    const msg = `இந்த பொருட்களைப் பயன்படுத்தி 3 சிறந்த தமிழ் ரெசிபிகளை உருவாக்கவும்: ${selectedArr}
+        <button onclick="generateRecipe()">Generate BEST Recipe</button>
 
-பின்வரும் வடிவத்தில் பதிலளிக்கவும்:
+        <div id="result">
+            <h2 id="recipe-title"></h2>
+            <img id="recipe-image" src="" alt="Recipe Image">
+            <div id="recipe-instructions"></div>
+        </div>
+    </div>
 
-ரெசிபி 1: [பெயர்]
-நேரம்: X நிமிடங்கள்
-பொருட்கள்: [குறிப்பிய பட்டியல்]
-படிகள்: [எண்ணிடப்பட்ட படிகள்]
-பரிமாறுவது: [எப்படி பரிமாற வேண்டும்]
+    <script>
+        // 1. Define the available ingredients
+        const ingredientsList = [
+            "Tomato", "Onion", "Garlic", "Pasta", 
+            "Chicken", "Rice", "Egg", "Bell Pepper", 
+            "Cheese", "Bread", "Potato", "Beef"
+        ];
 
-ரெசிபி 2: [பெயர்]
-நேரம்: X நிமிடங்கள்
-பொருட்கள்: [குறிப்பிய பட்டியல்]
-படிகள்: [எண்ணிடப்பட்ட படிகள்]
-பரிமாறுவது: [எப்படி பரிமாற வேண்டும்]
+        // 2. Render the ingredients to the DOM
+        const container = document.getElementById('ingredients-container');
+        ingredientsList.forEach(ing => {
+            const label = document.createElement('label');
+            label.className = 'ingredient-item';
+            label.innerHTML = `
+                <input type="checkbox" value="${ing.toLowerCase()}">
+                ${ing}
+            `;
+            container.appendChild(label);
+        });
 
-ரெசிபி 3: [பெயர்]
-நேரம்: X நிமிடங்கள்
-பொருட்கள்: [குறிப்பிய பட்டியல்]
-படிகள்: [எண்ணிடப்பட்ட படிகள்]
-பரிமாறுவது: [எப்படி பரிமாற வேண்டும்]`;
-    
-    sendPrompt(msg);
-  };
-  
-  document.getElementById('clearBtn').onclick = () => {
-    selected.clear();
-    document.querySelectorAll('.ingredient-btn').forEach(btn => {
-      btn.classList.remove('selected');
-    });
-    updateCount();
-  };
-  
-  initIngredients();
-  updateCount();
-</script>
+        // 3. Define the Recipe Database
+        const recipes = [
+            {
+                title: "Classic Tomato Garlic Pasta",
+                requires: ["pasta", "tomato", "garlic"],
+                image: "https://images.unsplash.com/photo-1555072956-7758afb20e8f?auto=format&fit=crop&w=600&q=80",
+                instructions: "1. Boil pasta until al dente.<br>2. Sauté minced garlic in olive oil.<br>3. Add chopped tomatoes and simmer.<br>4. Toss pasta in the sauce and serve!"
+            },
+            {
+                title: "Cheesy Chicken Skillet",
+                requires: ["chicken", "cheese", "onion"],
+                image: "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&w=600&q=80",
+                instructions: "1. Dice and cook chicken in a pan.<br>2. Add chopped onions and cook until translucent.<br>3. Top heavily with cheese and cover until melted.<br>4. Serve hot."
+            },
+            {
+                title: "Quick Veggie Fried Rice",
+                requires: ["rice", "egg", "onion", "bell pepper"],
+                image: "https://images.unsplash.com/photo-1603133872878-684f208fb84b?auto=format&fit=crop&w=600&q=80",
+                instructions: "1. Scramble the egg in a wok and remove.<br>2. Stir fry chopped onion and bell peppers.<br>3. Add day-old cooked rice and soy sauce.<br>4. Mix in the egg and serve."
+            },
+            {
+                title: "Ultimate Grilled Cheese",
+                requires: ["bread", "cheese", "garlic"],
+                image: "https://images.unsplash.com/photo-1528735602780-2552fd46c7af?auto=format&fit=crop&w=600&q=80",
+                instructions: "1. Butter the outside of two slices of bread and rub with garlic.<br>2. Place cheese between the slices.<br>3. Grill on a pan over medium-low heat until golden brown on both sides and cheese is melted."
+            },
+            {
+                title: "Hearty Potato Hash",
+                requires: ["potato", "onion", "egg"],
+                image: "https://images.unsplash.com/photo-1593504049359-7150f58022d6?auto=format&fit=crop&w=600&q=80",
+                instructions: "1. Dice potatoes and onions.<br>2. Fry in oil until potatoes are crispy and cooked through.<br>3. Fry an egg in a separate pan.<br>4. Serve the egg over the hot potato hash."
+            }
+        ];
 
+        // 4. Logic to generate the best recipe
+        function generateRecipe() {
+            // Get selected ingredients
+            const checkboxes = document.querySelectorAll('input[type="checkbox"]:checked');
+            const selectedIngredients = Array.from(checkboxes).map(cb => cb.value);
+
+            const resultDiv = document.getElementById('result');
+            
+            if (selectedIngredients.length === 0) {
+                alert("Please select at least one ingredient!");
+                resultDiv.style.display = 'none';
+                return;
+            }
+
+            // Find the best match
+            let bestRecipe = null;
+            let highestScore = -1;
+
+            recipes.forEach(recipe => {
+                // Count how many required ingredients the user selected
+                let matchCount = 0;
+                recipe.requires.forEach(req => {
+                    if (selectedIngredients.includes(req)) {
+                        matchCount++;
+                    }
+                });
+
+                // Calculate a score (percentage of required ingredients matched)
+                let score = matchCount / recipe.requires.length;
+
+                // Bonus points if they have exact ingredients without too much extra
+                if (score > highestScore && matchCount > 0) {
+                    highestScore = score;
+                    bestRecipe = recipe;
+                }
+            });
+
+            // Display results
+            resultDiv.style.display = 'block';
+            
+            if (bestRecipe) {
+                document.getElementById('recipe-title').innerText = bestRecipe.title;
+                document.getElementById('recipe-image').src = bestRecipe.image;
+                document.getElementById('recipe-instructions').innerHTML = bestRecipe.instructions;
+            } else {
+                // Fallback if no logical combination is found
+                document.getElementById('recipe-title').innerText = "Roshan's Creative Scramble";
+                document.getElementById('recipe-image').src = "https://images.unsplash.com/photo-1495521821757-a1efb6729352?auto=format&fit=crop&w=600&q=80";
+                document.getElementById('recipe-instructions').innerHTML = "Looks like a unique combination! Toss your selected ingredients in a pan with some olive oil, salt, and pepper, and stir-fry until cooked. Enjoy your custom creation!";
+            }
+            
+            // Scroll down to the result
+            resultDiv.scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
 </body>
 </html>
