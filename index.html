@@ -140,8 +140,8 @@
 
     <div class="app-container">
         <h1>👨‍🍳 ரோஷன் AI சமையல் குறிப்பு</h1>
-        
-        <!-- API Key Input Section (Updated for Groq) -->
+
+        <!-- API Key Input Section (Groq) -->
         <div class="api-key-section">
             <label for="api-key-input"><b>Groq API Key:</b></label><br>
             <input type="password" id="api-key-input" placeholder="உங்கள் Groq API Key-ஐ இங்கே ஒட்டவும்">
@@ -149,7 +149,7 @@
         </div>
 
         <p style="text-align: center; color: #666;">உங்கள் சமையலறையில் உள்ள பொருட்களை தேர்ந்தெடுக்கவும்:</p>
-        
+
         <div class="ingredients-grid" id="ingredients-container">
             <!-- Checkboxes will be injected here safely by JS -->
         </div>
@@ -210,7 +210,7 @@
         async function generateRecipe() {
             // Groq API Key-ஐ பெட்டியிலிருந்து எடுத்தல்
             const apiKeyInput = document.getElementById('api-key-input').value.trim();
-            
+
             if (!apiKeyInput) {
                 alert("தயவுசெய்து உங்கள் Groq API Key-ஐ உள்ளிடவும்!");
                 document.getElementById('api-key-input').focus();
@@ -241,13 +241,13 @@
             const imgElement = document.getElementById('recipe-image');
             const btn = document.getElementById('generate-btn');
 
-            // Loading State 
+            // Loading State
             btn.disabled = true;
             btn.innerText = "AI சமைத்துக்கொண்டிருக்கிறது... ⏳";
             resultDiv.style.display = 'block';
             imgElement.style.display = 'none';
             contentDiv.innerHTML = "<div class='loading'>AI உங்களுக்காக சமையல் குறிப்பை உருவாக்குகிறது... ⏳</div>";
-            
+
             resultDiv.scrollIntoView({ behavior: 'smooth' });
 
             try {
@@ -256,20 +256,24 @@
                 const encodedPrompt = encodeURIComponent(imagePrompt);
                 const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=800&height=400&nologo=true`;
 
-                // 2. AI Text Generation (Groq API - using llama3-70b-8192)
-                const textPrompt = `இந்த பொருட்களை மட்டும் பயன்படுத்தி ஒரு சுவையான சமையல் குறிப்பை தமிழில் உருவாக்கவும்: ${selectedTa.join(', ')}. 
+                // 2. AI Text Generation (Groq API)
+                // NOTE: "llama3-70b-8192" was retired by Groq, and its replacement
+                // "llama-3.3-70b-versatile" is now Enterprise-only (Contact Sales),
+                // so normal developer API keys get rejected. "openai/gpt-oss-120b" is
+                // Groq's current flagship model on the regular pay-per-token tier.
+                const textPrompt = `இந்த பொருட்களை மட்டும் பயன்படுத்தி ஒரு சுவையான சமையல் குறிப்பை தமிழில் உருவாக்கவும்: ${selectedTa.join(', ')}.
                 பதில் HTML வடிவத்தில் மட்டுமே இருக்க வேண்டும். வேறு எந்த விளக்கமும் தேவையில்லை.
-                சமையலின் பெயரை <h3> குறிச்சொல்லிலும், தேவையான பொருட்களை <ul> குறிச்சொல்லிலும், செய்முறையை <ol> குறிச்சொல்லிலும் கொடுக்கவும். 
+                சமையலின் பெயரை <h3> குறிச்சொல்லிலும், தேவையான பொருட்களை <ul> குறிச்சொல்லிலும், செய்முறையை <ol> குறிச்சொல்லிலும் கொடுக்கவும்.
                 markdown குறியீடுகளை (உதாரணமாக \`\`\`html) பயன்படுத்த வேண்டாம். நேரடியாக HTML tags-ஐ மட்டும் தரவும்.`;
 
                 const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
                     method: 'POST',
-                    headers: { 
+                    headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${apiKeyInput}` // Groq uses Bearer token authentication
                     },
                     body: JSON.stringify({
-                        model: "llama3-70b-8192", // Groq's fast Llama 3 model
+                        model: "openai/gpt-oss-120b", // available on the regular Groq developer tier
                         messages: [
                             { role: "system", content: "You are an expert Tamil Chef. Output ONLY pure HTML code without markdown formatting." },
                             { role: "user", content: textPrompt }
@@ -279,22 +283,35 @@
                 });
 
                 if (!response.ok) {
-                    throw new Error(`Groq API Error: ${response.status} ${response.statusText}. உங்கள் Key சரியாக உள்ளதா என சரிபார்க்கவும்.`);
+                    let detail = `${response.status} ${response.statusText}`;
+                    try {
+                        const errData = await response.json();
+                        if (errData && errData.error && errData.error.message) {
+                            detail = errData.error.message;
+                        }
+                    } catch (parseErr) {
+                        // response body wasn't JSON; keep the status text
+                    }
+                    throw new Error(`Groq API Error: ${detail}. உங்கள் Key சரியாக உள்ளதா என சரிபார்க்கவும்.`);
                 }
 
                 const data = await response.json();
-                
-                if (data.error) throw new Error(data.error.message);
 
-                let recipeHtml = data.choices[0].message.content;
-                
+                if (data.error) throw new Error(data.error.message);
+                if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+                    throw new Error("Groq API-யிலிருந்து சரியான பதில் கிடைக்கவில்லை.");
+                }
+
                 // AI தவறாக markdown அனுப்பினால் அதை நீக்குதல்
-                recipeHtml = recipeHtml.replace(/```html/g, '').replace(/```/g, '').trim();
+                const cleanedRecipeHtml = data.choices[0].message.content
+                    .replace(/```html/g, '')
+                    .replace(/```/g, '')
+                    .trim();
 
                 // முடிவுகளை DOM-ல் காண்பித்தல்
-                contentDiv.innerHTML = recipeHtml;
+                contentDiv.innerHTML = cleanedRecipeHtml;
                 imgElement.src = imageUrl;
-                
+
                 // படம் முழுமையாக Load ஆன பிறகு திரையில் காட்டவும்
                 imgElement.onload = () => {
                     imgElement.style.display = 'block';
