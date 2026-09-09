@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ta">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Roshan Recipe Generator</title>
+    <title>ரோஷன் சமையல் குறிப்பு உருவாக்கி (Roshan Recipe Generator)</title>
     <style>
         :root {
             --primary: #ff6b6b;
@@ -21,7 +21,7 @@
         }
         .app-container {
             background: white;
-            max-width: 600px;
+            max-width: 800px;
             width: 100%;
             border-radius: 12px;
             box-shadow: 0 8px 20px rgba(0,0,0,0.05);
@@ -34,7 +34,7 @@
         }
         .ingredients-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
             gap: 15px;
             margin-bottom: 25px;
         }
@@ -48,6 +48,7 @@
             border-radius: 8px;
             border: 1px solid #eee;
             transition: 0.2s;
+            font-weight: 500;
         }
         .ingredient-item:hover {
             background: #ffe3e3;
@@ -87,46 +88,68 @@
         }
         #recipe-image {
             width: 100%;
-            height: 300px;
+            height: 350px;
             object-fit: cover;
             border-radius: 8px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
         #recipe-instructions {
             margin-top: 20px;
-            line-height: 1.6;
+            line-height: 1.8;
             text-align: left;
             background: #f8f9fa;
-            padding: 15px;
+            padding: 20px;
             border-radius: 8px;
+            font-size: 1.05rem;
         }
     </style>
 </head>
 <body>
 
     <div class="app-container">
-        <h1>👨‍🍳 Roshan Recipe Generator</h1>
-        <p style="text-align: center; color: #666;">Select the ingredients you have in your kitchen:</p>
+        <h1>👨‍🍳 ரோஷன் சமையல் குறிப்பு உருவாக்கி</h1>
+        <p style="text-align: center; color: #666;">உங்கள் சமையலறையில் உள்ள பொருட்களை தேர்ந்தெடுக்கவும்:</p>
         
         <div class="ingredients-grid" id="ingredients-container">
             <!-- Checkboxes will be injected here by JavaScript -->
         </div>
 
-        <button onclick="generateRecipe()">Generate BEST Recipe</button>
+        <button onclick="generateRecipe()">சிறந்த செய்முறையை உருவாக்கு</button>
 
         <div id="result">
             <h2 id="recipe-title"></h2>
-            <img id="recipe-image" src="" alt="Recipe Image">
+            <img id="recipe-image" src="" alt="சமையல் படம் (Recipe Image)">
             <div id="recipe-instructions"></div>
         </div>
     </div>
 
     <script>
-        // 1. Define the available ingredients
+        // 1. Define the available ingredients with Tamil names
         const ingredientsList = [
-            "Tomato", "Onion", "Garlic", "Pasta", 
-            "Chicken", "Rice", "Egg", "Bell Pepper", 
-            "Cheese", "Bread", "Potato", "Beef"
+            { id: "tomato", name: "தக்காளி" },
+            { id: "onion", name: "வெங்காயம்" },
+            { id: "garlic", name: "பூண்டு" },
+            { id: "ginger", name: "இஞ்சி" },
+            { id: "rice", name: "அரிசி" },
+            { id: "chicken", name: "கோழி" },
+            { id: "fish", name: "மீன்" },
+            { id: "egg", name: "முட்டை" },
+            { id: "tuvardaal", name: "துவரம் பருப்பு" },
+            { id: "payathamparuppu", name: "பாசிப்பருப்பு" },
+            { id: "pottukadalai", name: "பொட்டுக்கடலை" },
+            { id: "aval", name: "அவல்" },
+            { id: "kondakalai", name: "கொண்டைக்கடலை" },
+            { id: "potato", name: "உருளைக்கிழங்கு" },
+            { id: "bell_pepper", name: "குடைமிளகாய்" },
+            { id: "oil", name: "எண்ணெய்" },
+            { id: "salt", name: "உப்பு" },
+            { id: "pepper", name: "மிளகு" },
+            { id: "sugar", name: "சர்க்கரை" },
+            { id: "milk", name: "பால்" },
+            { id: "bread", name: "ரொட்டி" },
+            { id: "cheese", name: "சீஸ்" },
+            { id: "pasta", name: "பாஸ்தா" },
+            { id: "beef", name: "இறைச்சி (Beef)" }
         ];
 
         // 2. Render the ingredients to the DOM
@@ -135,43 +158,61 @@
             const label = document.createElement('label');
             label.className = 'ingredient-item';
             label.innerHTML = `
-                <input type="checkbox" value="${ing.toLowerCase()}">
-                ${ing}
+                <input type="checkbox" value="${ing.id}">
+                ${ing.name}
             `;
             container.appendChild(label);
         });
 
-        // 3. Define the Recipe Database
+        // 3. Define the Recipe Database in Tamil
         const recipes = [
             {
-                title: "Classic Tomato Garlic Pasta",
-                requires: ["pasta", "tomato", "garlic"],
+                title: "சுவையான அவல் உப்புமா",
+                requires: ["aval", "onion", "oil", "salt"],
+                image: "https://images.unsplash.com/photo-1606491956689-2ea866880c84?auto=format&fit=crop&w=600&q=80",
+                instructions: "1. அவலை நீரில் சிறிது நேரம் ஊறவைக்கவும்.<br>2. வாணலியில் எண்ணெய் ஊற்றி, வெங்காயம் வதக்கவும்.<br>3. வதங்கிய பின் ஊறவைத்த அவல் மற்றும் உப்பு சேர்த்து நன்கு கலக்கவும்.<br>4. சூடாக பரிமாறவும்."
+            },
+            {
+                title: "செட்டிநாடு மீன் வறுவல்",
+                requires: ["fish", "ginger", "pepper", "oil", "salt"],
+                image: "https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&w=600&q=80",
+                instructions: "1. மீனை சுத்தம் செய்து கொள்ளவும்.<br>2. இஞ்சி விழுது, மிளகுத் தூள், உப்பு ஆகியவற்றை மீனில் தடவி ஊறவைக்கவும்.<br>3. வாணலியில் எண்ணெய் ஊற்றி மீனை பொரித்தெடுக்கவும்.<br>4. சுவையான மீன் வறுவல் தயார்!"
+            },
+            {
+                title: "கொண்டைக்கடலை சுண்டல்",
+                requires: ["kondakalai", "oil", "salt"],
+                image: "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&w=600&q=80",
+                instructions: "1. கொண்டைக்கடலையை வேகவைத்துக் கொள்ளவும்.<br>2. வாணலியில் எண்ணெய் ஊற்றி தாளிக்கவும்.<br>3. வேகவைத்த கடலை மற்றும் உப்பு சேர்த்து நன்கு வதக்கவும்.<br>4. மாலையில் சாப்பிட சிறந்த சிற்றுண்டி!"
+            },
+            {
+                title: "பாசிப்பருப்பு பாயசம்",
+                requires: ["payathamparuppu", "milk", "sugar"],
+                image: "https://images.unsplash.com/photo-1563805042-7684c8e9e9cb?auto=format&fit=crop&w=600&q=80",
+                instructions: "1. பாசிப்பருப்பை வாணலியில் லேசாக வறுத்து வேகவைக்கவும்.<br>2. வெந்த பருப்புடன் சர்க்கரை சேர்த்து கொதிக்க விடவும்.<br>3. கடைசியாக பால் சேர்த்து இறக்கவும்.<br>4. இனிப்பான பாயசம் தயார்!"
+            },
+            {
+                title: "முட்டை பொடிமாஸ்",
+                requires: ["egg", "onion", "pepper", "oil", "salt"],
+                image: "https://images.unsplash.com/photo-1614099719391-766a213e8b46?auto=format&fit=crop&w=600&q=80",
+                instructions: "1. வாணலியில் எண்ணெய் ஊற்றி பொடியாக நறுக்கிய வெங்காயத்தை வதக்கவும்.<br>2. முட்டையை உடைத்து ஊற்றி நன்கு கிளறவும்.<br>3. மிளகுத்தூள் மற்றும் உப்பு சேர்த்து சுருள வதக்கி இறக்கவும்."
+            },
+            {
+                title: "பருப்பு சாதம்",
+                requires: ["rice", "tuvardaal", "oil", "salt"],
+                image: "https://images.unsplash.com/photo-1512058564366-18510be2db19?auto=format&fit=crop&w=600&q=80",
+                instructions: "1. அரிசி மற்றும் துவரம் பருப்பை ஒன்றாக சேர்த்து வேகவைக்கவும்.<br>2. சிறிது எண்ணெய் மற்றும் உப்பு சேர்த்து கலக்கவும்.<br>3. சூடாக நெய் அல்லது உருளைக்கிழங்கு வறுவலுடன் பரிமாறவும்."
+            },
+            {
+                title: "தக்காளி பூண்டு பாஸ்தா",
+                requires: ["pasta", "tomato", "garlic", "oil", "salt"],
                 image: "https://images.unsplash.com/photo-1555072956-7758afb20e8f?auto=format&fit=crop&w=600&q=80",
-                instructions: "1. Boil pasta until al dente.<br>2. Sauté minced garlic in olive oil.<br>3. Add chopped tomatoes and simmer.<br>4. Toss pasta in the sauce and serve!"
+                instructions: "1. பாஸ்தாவை வேகவைத்துக் கொள்ளவும்.<br>2. வாணலியில் எண்ணெய் ஊற்றி பூண்டு, தக்காளி சேர்த்து வதக்கவும்.<br>3. உப்பு சேர்த்து மசிய வேகவிடவும்.<br>4. பாஸ்தாவை சேர்த்து கிளறி பரிமாறவும்."
             },
             {
-                title: "Cheesy Chicken Skillet",
-                requires: ["chicken", "cheese", "onion"],
+                title: "சுவையான கோழி வறுவல்",
+                requires: ["chicken", "onion", "pepper", "oil", "salt"],
                 image: "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&w=600&q=80",
-                instructions: "1. Dice and cook chicken in a pan.<br>2. Add chopped onions and cook until translucent.<br>3. Top heavily with cheese and cover until melted.<br>4. Serve hot."
-            },
-            {
-                title: "Quick Veggie Fried Rice",
-                requires: ["rice", "egg", "onion", "bell pepper"],
-                image: "https://images.unsplash.com/photo-1603133872878-684f208fb84b?auto=format&fit=crop&w=600&q=80",
-                instructions: "1. Scramble the egg in a wok and remove.<br>2. Stir fry chopped onion and bell peppers.<br>3. Add day-old cooked rice and soy sauce.<br>4. Mix in the egg and serve."
-            },
-            {
-                title: "Ultimate Grilled Cheese",
-                requires: ["bread", "cheese", "garlic"],
-                image: "https://images.unsplash.com/photo-1528735602780-2552fd46c7af?auto=format&fit=crop&w=600&q=80",
-                instructions: "1. Butter the outside of two slices of bread and rub with garlic.<br>2. Place cheese between the slices.<br>3. Grill on a pan over medium-low heat until golden brown on both sides and cheese is melted."
-            },
-            {
-                title: "Hearty Potato Hash",
-                requires: ["potato", "onion", "egg"],
-                image: "https://images.unsplash.com/photo-1593504049359-7150f58022d6?auto=format&fit=crop&w=600&q=80",
-                instructions: "1. Dice potatoes and onions.<br>2. Fry in oil until potatoes are crispy and cooked through.<br>3. Fry an egg in a separate pan.<br>4. Serve the egg over the hot potato hash."
+                instructions: "1. கோழிக்கறியை சுத்தம் செய்து கொள்ளவும்.<br>2. வாணலியில் எண்ணெய் ஊற்றி வெங்காயத்தை வதக்கவும்.<br>3. கறி, உப்பு, மிளகுத்தூள் சேர்த்து தண்ணீர் விட்டு வேகவைக்கவும்.<br>4. தண்ணீர் வற்றி சுருள வரும்வரை வதக்கி இறக்கவும்."
             }
         ];
 
@@ -184,7 +225,7 @@
             const resultDiv = document.getElementById('result');
             
             if (selectedIngredients.length === 0) {
-                alert("Please select at least one ingredient!");
+                alert("குறைந்தபட்சம் ஒரு பொருளையாவது தேர்ந்தெடுக்கவும்!");
                 resultDiv.style.display = 'none';
                 return;
             }
@@ -221,9 +262,9 @@
                 document.getElementById('recipe-instructions').innerHTML = bestRecipe.instructions;
             } else {
                 // Fallback if no logical combination is found
-                document.getElementById('recipe-title').innerText = "Roshan's Creative Scramble";
+                document.getElementById('recipe-title').innerText = "ரோஷனின் சிறப்பு கலவை";
                 document.getElementById('recipe-image').src = "https://images.unsplash.com/photo-1495521821757-a1efb6729352?auto=format&fit=crop&w=600&q=80";
-                document.getElementById('recipe-instructions').innerHTML = "Looks like a unique combination! Toss your selected ingredients in a pan with some olive oil, salt, and pepper, and stir-fry until cooked. Enjoy your custom creation!";
+                document.getElementById('recipe-instructions').innerHTML = "இது ஒரு தனித்துவமான கலவையாக தெரிகிறது! நீங்கள் தேர்ந்தெடுத்த பொருட்களை வாணலியில் சிறிது எண்ணெய், உப்பு மற்றும் மிளகு சேர்த்து நன்கு சமைக்கவும். உங்கள் சொந்த சுவையை மகிழ்ந்து உண்ணுங்கள்!";
             }
             
             // Scroll down to the result
